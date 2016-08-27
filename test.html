@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>原生ajax</title>
+</head>
+<body>
+	<input type="button" value="原生" id="btn">
+	<script>
+		var btn = document.getElementById('btn')
+		btn.onclick = function(){
+			var xhr = new XMLHttpRequest();   //原生内部获取的函数
+			xhr.open('get','/getsa',true)     //创建我的请求
+			//打开（请求，路径，异步）
+			xhr.send();   //发送
+
+			xhr.onreadystatechange = function(){
+				//onreadychange监听我请求到响应的过程
+				if(xhr.readyState == 4 && xhr.status == 200){
+					console.log(xhr.responseText)
+
+				}
+			}
+		}
+	</script>
+</body>
+</html>
