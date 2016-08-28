@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>音乐播放器</title>
+	<link rel="stylesheet" href="fonts2/iconfont.css">
+
+</head>
+<style>
+	
+	/*文字自定义*/
+	@font-face {font-family: 'iconfont';
+    src: url('fonts/iconfont.eot'); /* IE9*/
+    src: url('fonts/iconfont.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    	 url('fonts/iconfont.woff') format('woff'), /* chrome、firefox */
+    	 url('fonts/iconfont.ttf') format('truetype'), /* chrome、firefox、opera、Safari, Android, iOS 4.2+*/
+    	 url('fonts/iconfont.svg#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+	/*字体样式和body样式*/
+	body{margin: 0;padding: 0;background-image: url(images/ditu.png);}
+	a{text-decoration: none;}
+	.iconfont{
+		font-family:"iconfont" !important;
+    	font-size:35px;font-style:normal;
+    	-webkit-font-smoothing: antialiased;
+    	-webkit-text-stroke-width: 0.1px;
+    	-moz-osx-font-smoothing: grayscale;
+		color: #fff;}
+	.iconfont:hover{color: #ccc;}
+
+	/*图片样式*/
+	.pic{
+		margin:100px 300px;width: 675px;height: 213px;overflow: hidden;
+	}
+	.pic ul{list-style: none;}
+	.pic ul li{display: none;}
+	.pic .current{display: block;}
+
+	/*音乐条盒子样式*/
+	.music-container{position: relative;width: 1000px;height: 80px;border: 1px solid #fff;margin: 0 auto;margin-top: 80px;background-color: #25342d;}
+
+	/*按钮样式*/
+	.daxiao{position: absolute;display: block;width: 35px;height: 35px;}
+	#pauseBtn{top: 19px;left: 30px;}
+	#playBtn{top: 19px;left: 90px;}
+	#stopBtn{top: 19px;left: 150px;}
+	#xunhuan{top: 19px;left: 780px;}
+	#shoucang{top: 19px;left: 840px;}
+	#xiazai{top: 19px;left: 900px;}
+	
+	/*时间样式*/
+	.shijian{position: relative;width: 112px;height: 19px;left: 637px;top: 13px;}
+
+	#cutTime{color: #fff;}
+	#musicTime{color: #fff;}
+	.tiao{color: #fff;}
+
+	/*进度条样式*/
+	.progress-wrap{position: absolute;width: 500px;height: 6px;border-radius: 10px;background-color: #fff;margin-top: -35px;margin-left: 418px;overflow: hidden;}
+	.progress{width: 0%;height: 6px;border-radius: 10px;background-color: orange;}
+
+	/*列表样式*/
+	.list{width: 200px;height: 10px;margin-left: 275px;margin-top: -125px;}
+	.list span{position: absolute;color: #25342d;top: 386px;left: 202px;}
+	.list p{position: relative;color: #25342d;cursor: pointer;float: left;text-indent: 20px;}
+	.list p:hover{color: #fff;}
+
+
+</style>
+<body>
+	<!-- <audio src="music/薛之谦 - 演员.mp3" id="music"></audio> -->
+	<!-- 图片 -->
+	<div class="pic">
+		<ul>
+			<li class="current"><img src="images/1.png" alt=""></li>
+			<li><img src="images/2.png" alt=""></li>
+			<li><img src="images/3.png" alt=""></li>
+		</ul>
+	</div>
+
+	<!-- 音乐条 -->
+	<div class="music-container">
+
+		<a href="javascript:void(0)" class="iconfont daxiao" id="pauseBtn">&#xe696;</a>
+		<a href="javascript:void(0)" class="iconfont daxiao" id="playBtn">&#xe6bb;</a>
+		<a href="javascript:void(0)" class="iconfont daxiao" id="stopBtn">&#xe6ae;</a>
+
+		<a href="javascript:void(0)" class="iconfont daxiao" id="xunhuan">&#xe631;</a>
+		<a href="javascript:void(0)" class="iconfont daxiao" id="shoucang">&#xe604;</a>
+		<a href="javascript:void(0)" class="iconfont daxiao" id="xiazai">&#xe617;</a>
+
+		<div class="shijian">
+			<span id="cutTime">00:00</span><span class="tiao">/</span>
+			<span id="musicTime">00:00</span>
+		</div>
+	
+	</div>
+
+	<!-- 进度条 -->
+	<div class="progress-wrap">
+		<div class="progress" id="pro"></div>
+	</div>
+
+	<!-- 列表 -->
+	<div class="list">  <!--  歌曲列表 -->
+		<span>音乐列表：</span>
+		<p>模特</p>
+		<p>演员</p>
+		<p>不将就</p>
+	</div>
+
+	
+
+	<script type="text/javascript" src="jquery-1.10.2.js"></script>
+	<script>
+
+
+	// 获取document.getElementById值给到G
+	function G(sId){
+		return document.getElementById(sId);
+	}
+
+	// 时间转换为整数
+	function changTime(musicDur){
+		var hour = Math.floor(musicDur/3600);
+		var minute = Math.floor(musicDur/60);
+		if(minute<10){
+			minute = '0' + minute;
+		}
+		var second= Math.floor(musicDur%60);
+		if(second<10){
+			second = '0' + second;
+		}
+		return (minute+':'+second)
+	}
+
+	// 视窗加载
+	window.onload = function(){
+		// 获取相对应的值
+		var pauseBtn = G('pauseBtn');
+		var palyBtn  = G('palyBtn');
+		var stopBtn  = G('stopBtn');
+		var xunhuan  = G('xunhuan');
+		var shoucang = G('shoucang');
+		var xiazai   = G('xiazai');
+		var music    = G('music');
+		var musicTime = G('musicTime');
+		var cutTime  =G('cutTime');
+
+		// 音乐文件位置
+		var song = [
+		'music/李荣浩 - 模特.mp3',
+		'music/薛之谦 - 演员.mp3',
+		'music/李荣浩 - 不将就 - 2015上海“天生李荣浩”演唱会.mp3'
+		]
+
+
+		// 音乐文件位置自动获取
+		var music = new Audio();
+		
+		music.src = song[0];
+		
+		// 音乐的时间
+		var musicDur = music.duration;
+		// 时间转换
+		var timeStr = changTime(musicDur);
+
+		
+
+	
+
+		// 点击播放按钮事件
+		playBtn.addEventListener('click',function(e){
+			musicDur = music.duration;
+
+			timeStr = changTime(musicDur);
+
+			musicTime.innerHTML = timeStr;
+
+			music.play();
+		}) 
+
+		// 点击列表P事件
+		$('.list p').click(function(){
+			var i = $('.list p').index($(this));
+
+			musicDur = music.duration;
+
+			timeStr = changTime(musicDur);
+
+			music.src = song[i];
+
+			music.play();
+
+			musicTime.innerHTML = timeStr;
+		})
+
+		pauseBtn.onclick = function(){
+			music.pause();
+		}
+		
+		stopBtn.onclick = function(){
+			music.currentTime = 0;
+			music.pause();
+		}
+
+
+		xunhuan.onclick = function(){
+			music.setAttribute('loop','loop')
+		}
+
+		shoucang.onclick = function(){
+			alert('已加入收藏')
+		}
+
+		xiazai.onclick = function(){
+			alert('已加入下载列表')
+		}
+
+		// 时间更新
+		music.addEventListener('timeupdate',function(e){
+			cutTime.innerHTML = changTime(music.currentTime);
+			var per = Math.floor((music.currentTime/music.duration)*100);
+			document.getElementById('pro').style.width = (per+'%')
+		})
+	}
+
+	// 图片轮播
+	var num = 0;
+	var go = setInterval(timer,2000);
+
+	function timer() {
+		num++
+		var thispic = $('.pic ul li.current');
+		$('.pic ul li.current').removeClass('current');
+		if(num<3){
+			thispic.next().addClass('current');
+		}else{
+			num = 0;
+			$('.pic ul li:first').addClass('current');
+		}
+
+	}
+
+	
+
+
+
+
+	</script>
+</body>
+</html>
